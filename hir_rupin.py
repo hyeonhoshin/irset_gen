@@ -2,8 +2,8 @@ import time
 import picamera
 import numpy as np
 
-width = 720
-height = 1280
+width = 360
+height = 640
 
 frames = 60
 import argparse
