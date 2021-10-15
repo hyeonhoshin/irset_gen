@@ -6,3 +6,5 @@ test/
 __pycache__
 lucia
 temp
+watame*
+*.bak

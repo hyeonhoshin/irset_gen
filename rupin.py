@@ -11,6 +11,9 @@ parser.add_argument('--device',type=str, default='/dev/ttyACM0')
 parser.add_argument('--baudrate',type=int, default=115200)
 parser.add_argument('folder',type=str)
 parser.add_argument('--count','-c', type=int, default=1)
+parser.add_argument('--mode','-m',type=str, default='save')
+parser.add_argument('--bias','-b',type=str, default='False')
+parser.add_argument('--normalize','-n',type=str, default='False')
 args = parser.parse_args()
 
 print("======= Setting ========")
@@ -79,33 +82,66 @@ def s16(val):
 fps = FPS.FPS()
 
 fps.start()
-for i in range(args.count):
-    fps.update()
-    buffer = []
-    ser.write(b'reg read 0x10 0x78\n')
-    frame = ser.read_until()
+if args.mode == 'save':
+    for i in range(args.count):
+        fps.update()
+        buffer = []
+        ser.write(b'reg read 0x10 0x78\n')
+        frame = ser.read_until()
 
-    for j in range(0,360,6):
-        prior = frame[j:j+2]
-        post = frame[j+3:j+5]
-        try:
-            buffer.append(s16(int(prior+post, base = 16)))
-        except:
-            print(prior+post)
-            # print(frame)
+        for j in range(0,360,6):
+            prior = frame[j:j+2]
+            post = frame[j+3:j+5]
+            try:
+                buffer.append(s16(int(prior+post, base = 16)))
+            except:
+                print(prior+post)
+                # print(frame)
 
-    tmp = np.array(buffer)
-    f = open(args.folder+f'/{i:05}.npy', 'wb')
-    np.save(f,tmp)
-    f.close()
+        tmp = np.array(buffer)
+        f = open(args.folder+f'/{i:05}.npy', 'wb')
+        np.save(f,tmp)
+        f.close()
 
-    tmp_img = tmp.reshape(6,10)
-    tmp_img = tmp_img - np.min(tmp_img)
-    tmp_img = tmp_img / 1023.
-    img = cv2.resize(tmp_img, dsize=(1000,600), interpolation=cv2.INTER_NEAREST)
+        tmp_img = tmp.reshape(6,10)
+        tmp_img = tmp_img - np.min(tmp_img)
+        tmp_img = tmp_img / 1023.
+        img = cv2.resize(tmp_img, dsize=(1000,600), interpolation=cv2.INTER_NEAREST)
 
-    cv2.imshow('stream', img)
-    cv2.waitKey(1)
+        cv2.imshow('stream', img)
+        cv2.waitKey(1)
+elif args.mode == 'conti':
+    while(True):
+        fps.update()
+        buffer = []
+        ser.write(b'reg read 0x10 0x78\n')
+        frame = ser.read_until()
+
+        for j in range(0,360,6):
+            prior = frame[j:j+2]
+            post = frame[j+3:j+5]
+            try:
+                buffer.append(s16(int(prior+post, base = 16)))
+            except:
+                print(prior+post)
+                # print(frame)
+
+        tmp = np.array(buffer)
+        if args.normalize == 'False':
+            tmp_img = tmp.reshape(6,10)
+            tmp_img = tmp_img - np.min(tmp_img)
+            tmp_img = tmp_img / 1023.
+        else:
+            tmp = tmp.reshape(6,10)
+            tmp = tmp.astype(np.uint8)
+            tmp_img = cv2.normalize(tmp, None, 0, 255, cv2.NORM_MINMAX)
+            # print(type(tmp_img))
+        img = cv2.resize(tmp_img, dsize=(1000,600), interpolation=cv2.INTER_NEAREST)
+
+        cv2.imshow('stream', img)
+        cv2.waitKey(1)
+
+        
 fps.stop()
 print(f"Total fps : {fps.fps():.2f}")
 
