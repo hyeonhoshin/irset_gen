@@ -8,12 +8,13 @@ import time
 
 parser = argparse.ArgumentParser(description='Take IR photos')
 parser.add_argument('--device',type=str, default='/dev/ttyACM0')
-parser.add_argument('--baudrate',type=int, default=115200)
+parser.add_argument('--baudrate',type=int, default=115200) # How about trying 128 000 or 256 000?
 parser.add_argument('folder',type=str)
-parser.add_argument('--count','-c', type=int, default=1)
-parser.add_argument('--mode','-m',type=str, default='save')
-parser.add_argument('--bias','-b',type=str, default='False')
-parser.add_argument('--normalize','-n',type=str, default='False')
+parser.add_argument('--count','-c', type=int,help='How many frames do you want.' default=1)
+parser.add_argument('--mode','-m',type=str,help='If mode is \'conti\', it does not save output and just draw plot in real time' default='save')
+parser.add_argument('--bias','-b',type=str,help='Do bias compensation. Not implemented yet.', default='False')
+parser.add_argument('--normalize','-n',type=str,help='Do simple normalizing by cv2.normalize' default='False')
+parser.add_argument('--flip','-f',type=str,help='If true, it plots from bottom right.', default='True')
 args = parser.parse_args()
 
 print("======= Setting ========")
@@ -106,7 +107,7 @@ if args.mode == 'save':
         tmp_img = tmp.reshape(6,10)
         tmp_img = tmp_img - np.min(tmp_img)
         tmp_img = tmp_img / 1023.
-        img = cv2.resize(tmp_img, dsize=(1000,600), interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow('stream', img)
         cv2.waitKey(1)
@@ -126,6 +127,9 @@ elif args.mode == 'conti':
                 print(prior+post)
                 # print(frame)
 
+        if args.flip == 'True':
+            buffer.reverse()
+
         tmp = np.array(buffer)
         if args.normalize == 'False':
             tmp_img = tmp.reshape(6,10)
@@ -136,7 +140,7 @@ elif args.mode == 'conti':
             tmp = tmp.astype(np.uint8)
             tmp_img = cv2.normalize(tmp, None, 0, 255, cv2.NORM_MINMAX)
             # print(type(tmp_img))
-        img = cv2.resize(tmp_img, dsize=(1000,600), interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow('stream', img)
         cv2.waitKey(1)
@@ -144,6 +148,7 @@ elif args.mode == 'conti':
         
 fps.stop()
 print(f"Total fps : {fps.fps():.2f}")
+print(f"Total time : {fps.elapsed():.2f}")
 
 cv2.waitKey(10)
 cv2.destroyAllWindows()
