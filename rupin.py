@@ -7,13 +7,13 @@ import cv2
 import time
 
 parser = argparse.ArgumentParser(description='Take IR photos')
-parser.add_argument('--device',type=str, default='/dev/ttyACM0')
+parser.add_argument('--device',type=str, help='The port of connected max25405 evkit.', default='/dev/ttyACM0')
 parser.add_argument('--baudrate',type=int, default=115200) # How about trying 128 000 or 256 000?
 parser.add_argument('folder',type=str)
-parser.add_argument('--count','-c', type=int,help='How many frames do you want.' default=1)
-parser.add_argument('--mode','-m',type=str,help='If mode is \'conti\', it does not save output and just draw plot in real time' default='save')
+parser.add_argument('--count','-c', type=int,help='How many frames do you want.', default=1)
+parser.add_argument('--mode','-m',type=str,help='If mode is \'conti\', it does not save output and just draw plot in real time', default='save')
 parser.add_argument('--bias','-b',type=str,help='Do bias compensation. Not implemented yet.', default='False')
-parser.add_argument('--normalize','-n',type=str,help='Do simple normalizing by cv2.normalize' default='False')
+parser.add_argument('--normalize','-n',type=str,help='Do simple normalizing by cv2.normalize', default='False')
 parser.add_argument('--flip','-f',type=str,help='If true, it plots from bottom right.', default='True')
 args = parser.parse_args()
 
@@ -24,11 +24,12 @@ print("foler : {}".format(args.folder))
 print("count taking photo : {}\n".format(args.count))
 
 ### input : name of usb. baud rate. folder name.
+lr_path = args.folder + '/ir_lr'
 
 # Generate folder
 import os
 try:
-    os.makedirs(args.folder, exist_ok=True)
+    os.makedirs(lr_path, exist_ok=True)
 except:
     print("Cannot make directory!")
     exit(-1)
@@ -100,7 +101,7 @@ if args.mode == 'save':
                 # print(frame)
 
         tmp = np.array(buffer)
-        f = open(args.folder+f'/{i:05}.npy', 'wb')
+        f = open(lr_path+f'/{i:05}.npy', 'wb')
         np.save(f,tmp)
         f.close()
 
