@@ -29,7 +29,7 @@ print("count taking photo : {}\n".format(args.count))
 
 
 ### Start Hir grabbing by multi-processing.
-proc = Process(target=hir_process,args=(args.folder, args.count,args.flip,))
+proc = Process(target=hir_process,args=(args.folder, args.count,args.flip,args.mode,))
 proc.start()
 
 ### input : name of usb. baud rate. folder name.

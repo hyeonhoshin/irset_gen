@@ -1,11 +1,13 @@
-def hir_process(folder, frames, flip):
+
+def hir_process(folder, frames, flip, mode):
     # folder : The path of where hir folder will be generated
     # frames : count in main loop. In other words, how many frames are grabbed.
 
     import picamera
     import time
     import os
-    
+    from time import sleep
+
     proc = os.getpid()
     print(f"HIR process pid : {proc}")
 
@@ -33,15 +35,24 @@ def hir_process(folder, frames, flip):
         time.sleep(2)
         #output = np.empty((height, width, 3), dtype=np.uint8)
 
-        start = time.time()
-        camera.capture_sequence([
-        path +'/%05d.png' % i        # capture_continuous --> can used with multi-process.
-            for i in range(frames)
-            ], use_video_port=True)
-        finish = time.time()
+        camera.start_preview()
+        camera.preview_fullscreen = False
+        camera.preview_window = (0,0,360,480)
+        if mode == 'save':
 
-    print('High resolution IR images : Captured %d frames at %.2ffps' % ( # 23.48fps offered. Up to 26fps.
-        frames,
-        frames / (finish - start)))
+            start = time.time()
+            camera.capture_sequence([
+            path +'/%05d.png' % i        # capture_continuous --> can used with multi-process.
+                for i in range(frames)
+                ], use_video_port=True)
+            finish = time.time()
 
-    print('Written Ended.')
+            print('High resolution IR images : Captured %d frames at %.2ffps' % ( # 23.48fps offered. Up to 26fps.
+                frames,
+                frames / (finish - start)))
+
+            print('Written Ended.')
+            camera.stop_preview()
+        else:
+            print("Now streaming?")
+            sleep(100000000)
