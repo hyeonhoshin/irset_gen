@@ -113,10 +113,10 @@ if args.mode == 'save':
 
         tmp = np.array(buffer)
         f = open(lr_path+f'/{i:05}.npy', 'wb')
-        np.save(f,tmp)
+        tmp_img = tmp.reshape(6,10)[::-1]
+        np.save(f,tmp_img)
         f.close()
 
-        tmp_img = tmp.reshape(6,10)
         tmp_img = tmp_img - np.min(tmp_img)
         tmp_img = tmp_img / 1023.
         img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
@@ -139,19 +139,23 @@ elif args.mode == 'conti':
                 print(prior+post)
                 # print(frame)
 
-        if args.flip == 'True':
-            buffer.reverse()
+        #if args.flip == 'True':
+        #    buffer.reverse()
 
         tmp = np.array(buffer)
+        tmp_img = tmp.reshape(6,10)
+        
+        if args.flip == 'True':
+            tmp_img = tmp_img[::-1]
+
         if args.normalize == 'False':
-            tmp_img = tmp.reshape(6,10)
             tmp_img = tmp_img - np.min(tmp_img)
             tmp_img = tmp_img / 1023.
         else:
-            tmp = tmp.reshape(6,10)
             tmp = tmp.astype(np.uint8)
             tmp_img = cv2.normalize(tmp, None, 0, 255, cv2.NORM_MINMAX)
             # print(type(tmp_img))
+
         img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow('stream', img)
