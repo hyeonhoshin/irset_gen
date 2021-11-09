@@ -1,5 +1,5 @@
 
-def hir_process(folder, frames, flip, mode):
+def hir_process(folder, frames, flip, mode, barrier, connection):
     # folder : The path of where hir folder will be generated
     # frames : count in main loop. In other words, how many frames are grabbed.
 
@@ -38,18 +38,23 @@ def hir_process(folder, frames, flip, mode):
         camera.start_preview()
         camera.preview_fullscreen = False
         camera.preview_window = (0,0,360,480)
+
+        barrier.wait()
         if mode == 'save':
 
             start = time.time()
-            camera.capture_sequence([
-            path +'/%05d.png' % i        # capture_continuous --> can used with multi-process.
-                for i in range(frames)
-                ], use_video_port=True)
+            for frame in range(frames):
+                camera.capture_sequence([path + '/%05d.png' % frame], use_video_port=True)
+                if(connection.poll()):
+                    break
             finish = time.time()
 
-            print('High resolution IR images : Captured %d frames at %.2ffps' % ( # 23.48fps offered. Up to 26fps.
-                frames,
-                frames / (finish - start)))
+            print('High resolution IR images : Captured %d frames at %.2ffps, duration %s, from %s to %s' % ( # 23.48fps offered. Up to 26fps.
+                frame+1,
+                (frame+1) / (finish - start),
+                finish-start,
+                start,
+                finish))
 
             print('Written Ended.')
             camera.stop_preview()

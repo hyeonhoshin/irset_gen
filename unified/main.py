@@ -8,7 +8,7 @@ import time
 import os
 
 from hir import hir_process
-from multiprocessing import Process, current_process
+from multiprocessing import Process, current_process, Barrier, Pipe
 
 parser = argparse.ArgumentParser(description='Take IR photos')
 parser.add_argument('--device',type=str, help='The port of connected max25405 evkit.', default='/dev/ttyACM0')
@@ -29,7 +29,9 @@ print("count taking photo : {}\n".format(args.count))
 
 
 ### Start Hir grabbing by multi-processing.
-proc = Process(target=hir_process,args=(args.folder, args.count,args.flip,args.mode,))
+sync_barrier = Barrier(2)
+[hir_connection, connection] = Pipe(duplex=True)
+proc = Process(target=hir_process,args=(args.folder, args.count,args.flip,args.mode,sync_barrier, hir_connection))
 proc.start()
 
 ### input : name of usb. baud rate. folder name.
@@ -94,14 +96,20 @@ def s16(val):
 
 fps = FPS.FPS()
 
+cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
+cv2.waitKey(1)
+sync_barrier.wait()
+start_time = time.time()
+
 fps.start()
 if args.mode == 'save':
+
     for i in range(args.count):
         fps.update()
         buffer = []
         ser.write(b'reg read 0x10 0x78\n')
         frame = ser.read_until()
-
+        
         for j in range(0,360,6):
             prior = frame[j:j+2]
             post = frame[j+3:j+5]
@@ -123,6 +131,12 @@ if args.mode == 'save':
 
         cv2.imshow('stream', img)
         cv2.waitKey(1)
+
+    connection.send("End")
+    end_time = time.time()
+    
+    print("Low Resolution image captured! Duration %s, from %s to %s" % (end_time-start_time, start_time, end_time))
+
 elif args.mode == 'conti':
     while(True):
         fps.update()
