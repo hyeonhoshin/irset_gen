@@ -14,7 +14,7 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
     width = 360
     height = 480
 
-    path = './ir_hr' #folder+'/ir_hr'
+    path = folder+'/ir_hr'
     print(f'Writing highresolution ir images in {path}')
 
     # Generate folder
