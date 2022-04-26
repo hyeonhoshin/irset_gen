@@ -184,8 +184,10 @@ elif args.mode == 'conti':
 
         
 fps.stop()
-print(f"Total fps : {fps.fps():.2f}")
-print(f"Total time : {fps.elapsed():.2f}")
+print(f"Total fps : {fps.fps():.4f}")
+print(f"Total time : {fps.elapsed():.4f}")
+print(f"Total fps(time func) : {fps.fps2():.4f}")
+print(f"Total time : {fps.elapsed2():.4f}")
 
 proc.join()
 
