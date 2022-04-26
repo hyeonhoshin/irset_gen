@@ -11,19 +11,14 @@ from hir import hir_process
 from multiprocessing import Process, current_process, Barrier, Pipe
 
 parser = argparse.ArgumentParser(description='Take IR photos')
-parser.add_argument('folder', type=str)
-parser.add_argument('subject', type=int)
-parser.add_argument('distance', type=int)
-parser.add_argument('orientation', type=int)
-
 parser.add_argument('--device',type=str, help='The port of connected max25405 evkit.', default='/dev/ttyACM0')
 parser.add_argument('--baudrate',type=int, default=115200) # How about trying 128 000 or 256 000?
+parser.add_argument('folder',type=str)
 parser.add_argument('--count','-c', type=int,help='How many frames do you want.', default=1)
 parser.add_argument('--mode','-m',type=str,help='If mode is \'conti\', it does not save output and just draw plot in real time', default='save')
 parser.add_argument('--bias','-b',type=str,help='Do bias compensation. Not implemented yet.', default='False')
 parser.add_argument('--normalize','-n',type=str,help='Do simple normalizing by cv2.normalize', default='False')
 parser.add_argument('--flip','-f',type=str,help='If true, it plots from bottom right.', default='True')
-
 args = parser.parse_args()
 
 print("======= Setting ========")
@@ -36,14 +31,14 @@ print("count taking photo : {}\n".format(args.count))
 ### Start Hir grabbing by multi-processing.
 sync_barrier = Barrier(2)
 [hir_connection, connection] = Pipe(duplex=True)
-proc = Process(target=hir_process,args=(os.path.join(args.folder, f"s{args.subject:02d}-d{args.distance}-t{args.orientation:03d}"), args.count,args.flip,args.mode,sync_barrier, hir_connection))
+proc = Process(target=hir_process,args=(args.folder, args.count,args.flip,args.mode,sync_barrier, hir_connection))
 proc.start()
 
 ### input : name of usb. baud rate. folder name.
-# lr_path = args.folder + '/ir_lr'
-lr_path = os.path.join(args.folder, f"s{args.subject:02d}-d{args.distance}-t{args.orientation:03d}", "ir_lr")
+lr_path = args.folder + '/ir_lr'
 
 # Generate folder
+import os
 try:
     os.makedirs(lr_path, exist_ok=True)
 except:
@@ -70,7 +65,7 @@ ser.write(b'reg write 0x02 0x02\n') # Activate. One shot mode Disabled
 sleep(0.01)
 ser.write(b'reg write 0x03 0x0F\n') # End of converstion delay = 0, Integration time = 800us(max)
 sleep(0.01)
-ser.write(b'reg write 0x04 0x42\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
+ser.write(b'reg write 0x04 0xD2\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
 sleep(0.01)
 ser.write(b'reg write 0x05 0x40\n') # Full PGA amplifying.
 sleep(0.01)

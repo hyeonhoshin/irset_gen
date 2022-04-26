@@ -9,3 +9,15 @@ temp
 watame*
 *.bak
 given/
+unified/FanSelf/
+unified/PickUp/
+unified/Squat/
+unified/Walk/
+unified/black_level_test/
+unified/hh/
+unified/*.tar.gz
+unified/noise_test/
+unified/tmp/
+unified/tmp2/
+unified/vis/
+

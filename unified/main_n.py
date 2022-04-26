@@ -29,7 +29,7 @@ args = parser.parse_args()
 print("======= Setting ========")
 print("Device name : {}".format(args.device))
 print("Baud rate : {}".format(args.baudrate))
-print("foler : {}".format(args.folder))
+print("folder : {}".format(args.folder))
 print("count taking photo : {}\n".format(args.count))
 
 
@@ -70,7 +70,7 @@ ser.write(b'reg write 0x02 0x02\n') # Activate. One shot mode Disabled
 sleep(0.01)
 ser.write(b'reg write 0x03 0x0F\n') # End of converstion delay = 0, Integration time = 800us(max)
 sleep(0.01)
-ser.write(b'reg write 0x04 0x42\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
+ser.write(b'reg write 0x04 0x02\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
 sleep(0.01)
 ser.write(b'reg write 0x05 0x40\n') # Full PGA amplifying.
 sleep(0.01)
@@ -131,7 +131,7 @@ if args.mode == 'save':
         f.close()
 
         tmp_img = tmp_img - np.min(tmp_img)
-        tmp_img = tmp_img / 1023.
+        tmp_img = tmp_img*4 / 1023.
         img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow('stream', img)

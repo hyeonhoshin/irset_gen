@@ -72,23 +72,23 @@ ser.write(b'reg write 0x03 0x0F\n') # End of converstion delay = 0, Integration 
 sleep(0.01)
 ser.write(b'reg write 0x04 0x42\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
 sleep(0.01)
-ser.write(b'reg write 0x05 0x40\n') # Full PGA amplifying.
+ser.write(b'reg write 0x05 0x41\n') # Full PGA amplifying.
 sleep(0.01)
 ser.write(b'reg write 0x06 0x0A\n') # LED PWM Setting. No need to cocern.
 sleep(0.01)
-ser.write(b'reg write 0xC1 0x08\n') # Turn off LED
+ser.write(b'reg write 0xC1 0x00\n') # Turn off LED, Turn on amplifiers.
 sleep(0.01)
 
 # Make the amplifier sensitive
-ser.write(b'reg write 0xA5 0xFF\n')
+ser.write(b'reg write 0xA5 0xDD\n')
 sleep(0.01)
-ser.write(b'reg write 0xA6 0xFF\n')
+ser.write(b'reg write 0xA6 0xDD\n')
 sleep(0.01)
-ser.write(b'reg write 0xA7 0xFF\n')
+ser.write(b'reg write 0xA7 0xDD\n')
 sleep(0.01)
-ser.write(b'reg write 0xA8 0xFF\n')
+ser.write(b'reg write 0xA8 0xDD\n')
 sleep(0.01)
-ser.write(b'reg write 0xA9 0xFF\n')
+ser.write(b'reg write 0xA9 0xDD\n')
 
 # Get ir data
 if(ser.is_open):
