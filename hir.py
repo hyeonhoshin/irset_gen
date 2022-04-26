@@ -1,7 +1,3 @@
-import picamera
-import time
-import os
-from time import sleep
 import io
 
 class SplitFrames(object):
@@ -23,6 +19,11 @@ class SplitFrames(object):
 def hir_process(folder, frames, flip, mode, barrier, connection):
     # folder : The path of where hir folder will be generated
     # frames : count in main loop. In other words, how many frames are grabbed.
+    import picamera
+    import time
+    import os
+    from time import sleep
+    import io
 
     proc = os.getpid()
     #print(f"HIR process pid : {proc}")
