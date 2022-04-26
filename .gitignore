@@ -1,3 +1,6 @@
+removable/
+test_samples/
+test_samples_normalized_imgs/
 test/
 .Trash-1000/
 .Trash-1000

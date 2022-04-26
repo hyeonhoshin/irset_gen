@@ -25,6 +25,7 @@ print("Baud rate : {}".format(args.baudrate))
 ## Folder made to save.
 try:
     os.makedirs('test_samples', exist_ok=True)
+    os.makedirs('test_samples_normalized_imgs',exist_ok=True)
 except:
     print("Cannot make directory!")
     exit(-1)
@@ -116,29 +117,38 @@ for amp in amp_steps:
 
         tmp = np.array(buffer)
 
-        f = open('test_samples'+f'/{i:05}.npy', 'wb')
+        f = open(b'test_samples/'+b'Amp_'+amp+b'_Gain_'+gain+b'.npy', 'wb')
         max = np.max(tmp)
         tmp_img = tmp.reshape(6,10)[::-1]
         np.save(f,tmp_img)
         f.close()
         
-        np_img = tmp_img/max
+        np_img = (tmp_img/max)*255.0
+        np_img = np_img.astype('uint8')
         
         cv_img = cv2.cvtColor(np_img,cv2.COLOR_GRAY2BGR)
         
-        lap = cv2.Laplacian(cv_img)
-        
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(lap)
-        
+        lap = cv2.Laplacian(cv_img,cv2.CV_16S)
+
+        np_lap = np.array(lap)
+        max_val = np.max(np_lap)
+        #print(max_val,">",best_sharpness,"?")
+
         if max_val > best_sharpness:
+            #print("yes!")
             best_sharpness = max_val
             loc_best_sharpness = {'amp':amp,'gain':gain}
-            
-        cv2.imwrite('Amp_'+amp+'_Gain'+gain+'.png', cv_img)
+        img = cv2.resize(cv_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
+        cv2.imwrite('test_samples_normalized_imgs/'+'Amp_'+str(amp,'utf-8')+'_Gain_'+str(gain,'utf-8')+'.png', img)
         
-        imgs_same_amp.append(min_val)
+        imgs_same_amp.append(max_val)
     imgs.append(imgs_same_amp)
+
+#print("Sharpnesses Amp 0: ",imgs[0])
+#print("Sharpnesses Amp 1: ",imgs[1])
+#print(imgs[2])
+#print(imgs[3])
     
-    print("The best sharpness:",max_val)
-    print("At the image, amp : %s, gain : %s",loc_best_sharpness['amp'],loc_best_sharpness['gain'])
+print("The best sharpness:",best_sharpness)
+print("At the image, amp : %s, gain : %s"%(str(loc_best_sharpness['amp'],'utf-8'),str(loc_best_sharpness['gain'],'utf-8')))
 
