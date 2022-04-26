@@ -6,7 +6,7 @@
 - [x] Delete unmeaningful subfolder 'unified'.
 - [x] Backup all the files which exist in the prior to our unified folder.
 - [x] Check the pre-made files function and delete useless ones.
-- [ ] Add Software defined ISP
+- [x] Add Software defined ISP
 - [ ] Add manual ISP mode by argument
 
 ## Bug fix.
