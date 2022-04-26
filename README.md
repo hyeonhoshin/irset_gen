@@ -13,9 +13,9 @@
 
 ## Function description of old files
 
-main.py : 기본 파일. 승우씨가 기록의 편의성을 개선해둠.
-main_n.py : main.py에서 CDS를 끔.
-main_night.py : CDS를 끈 채로 횟수 증가 -> sampling 수를 증가시켜서 낮은 SNR을 개선코자한듯.
-main2,3.py : hir captureing이 꺼져 있고, 내용은 동일하지만 다른 FPS.py을 호출하게 되어있음. Multi-angle 촬영을 위한 파일인듯.
-main_CG0.5_Iref1.py : Total Gain : 0.49,  GAIN factor : 0.49, Relative ADC Gain from I_ref = 1
-main_CG2_Iref4.py : Total Gain : 0.51, GAIN factor : 2.04, Relative ADC Gain from l_ref = 1/4
+- main.py : 기본 파일. 승우씨가 기록의 편의성을 개선해둠.
+- main_n.py : main.py에서 CDS를 끔.
+- main_night.py : CDS를 끈 채로 횟수 증가 -> sampling 수를 증가시켜서 낮은 SNR을 개선코자한듯.
+- main2,3.py : hir captureing이 꺼져 있고, 내용은 동일하지만 다른 FPS.py을 호출하게 되어있음. Multi-angle 촬영을 위한 파일인듯.
+- main_CG0.5_Iref1.py : Total Gain : 0.49,  GAIN factor : 0.49, Relative ADC Gain from I_ref = 1
+- main_CG2_Iref4.py : Total Gain : 0.51, GAIN factor : 2.04, Relative ADC Gain from l_ref = 1/4
