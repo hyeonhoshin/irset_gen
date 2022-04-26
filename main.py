@@ -29,7 +29,7 @@ args = parser.parse_args()
 print("======= Setting ========")
 print("Device name : {}".format(args.device))
 print("Baud rate : {}".format(args.baudrate))
-print("foler : {}".format(args.folder))
+print("folder : {}".format(args.folder))
 print("count taking photo : {}\n".format(args.count))
 
 
@@ -49,9 +49,9 @@ try:
 except:
     print("Cannot make directory!")
     exit(-1)
-print("Low resolution IR Directory is made.")
+#print("Low resolution IR Directory is made.")
 
-print(f"Main program pid : {os.getpid()}")
+#print(f"Main program pid : {os.getpid()}")
 
 ## Commnication with IR sensor.
 # Serial port open
@@ -99,18 +99,16 @@ if(ser.is_open):
 def s16(val):
     return -(val & 0x8000)|(val&0x7fff)
 
-fps = FPS.FPS()
+fps = FPS.FPS(args.count)
 
-#cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
-#cv2.waitKey(1)
+cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
+cv2.waitKey(1)
 sync_barrier.wait()
-start_time = time.time()
 
 fps.start()
 if args.mode == 'save':
 
     for i in range(args.count):
-        fps.update()
         buffer = []
         ser.write(b'reg read 0x10 0x78\n')
         frame = ser.read_until()
@@ -125,26 +123,23 @@ if args.mode == 'save':
                 # print(frame)
 
         tmp = np.array(buffer)
+        
         f = open(lr_path+f'/{i:05}.npy', 'wb')
         tmp_img = tmp.reshape(6,10)[::-1]
         np.save(f,tmp_img)
         f.close()
-
+        
         tmp_img = tmp_img - np.min(tmp_img)
         tmp_img = tmp_img / 1023.
         img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
-        #cv2.imshow('stream', img)
-        #cv2.waitKey(1)
+        cv2.imshow('stream', img)
+        cv2.waitKey(1)
 
     connection.send("End")
-    end_time = time.time()
-    
-    print("Low Resolution image captured! Duration %s, from %s to %s" % (end_time-start_time, start_time, end_time))
 
 elif args.mode == 'conti':
     while(True):
-        fps.update()
         buffer = []
         ser.write(b'reg read 0x10 0x78\n')
         frame = ser.read_until()
@@ -184,9 +179,9 @@ elif args.mode == 'conti':
 
         
 fps.stop()
-print(f"Total fps : {fps.fps():.4f}")
-print(f"Total time : {fps.elapsed():.4f}")
-print(f"Total fps(time func) : {fps.fps2():.4f}")
+#print(f"Total fps : {fps.fps():.4f}")
+#print(f"Total time : {fps.elapsed():.4f}")
+print(f"Total fps : {fps.fps2():.4f}")
 print(f"Total time : {fps.elapsed2():.4f}")
 
 proc.join()

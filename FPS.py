@@ -2,14 +2,14 @@
 import datetime
 import time
 class FPS:
-    def __init__(self):
+    def __init__(self, count):
         # store the start time, end time, and total number of frames
         # that were examined between the start and end intervals
         self._start = None
         self._start2 = None
         self._end = None
         self._end2 = None
-        self._numFrames = 0
+        self._numFrames = count
 
     def start(self):
         # start the timer
@@ -21,11 +21,6 @@ class FPS:
         # stop the timer
         self._end = datetime.datetime.now()
         self._end2 = time.time()
-
-    def update(self):
-        # increment the total number of frames examined during the
-        # start and end intervals
-        self._numFrames += 1
 
     def elapsed(self):
         # return the total number of seconds between the start and

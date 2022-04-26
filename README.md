@@ -1,7 +1,8 @@
 # Program for Data generator.
 
 ## To-do
-- [ ] Check the accuracy of FPS.py.
+- [x] Check the accuracy of FPS.py. (No prob confirmed.)
+- [x] Booting time optimization 2.3890s -> 0.3088s
 - [x] Delete unmeaningful subfolder 'unified'.
 - [x] Backup all the files which exist in the prior to our unified folder.
 - [x] Check the pre-made files function and delete useless ones.

@@ -9,7 +9,7 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
     from time import sleep
 
     proc = os.getpid()
-    print(f"HIR process pid : {proc}")
+    #print(f"HIR process pid : {proc}")
 
     width = 360
     height = 480
@@ -24,7 +24,7 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
     except:
         print("Cannot make directory!")
         exit(-1)
-    print("High resolution IR Directory is made.")
+    #print("High resolution IR Directory is made.")
 
     with picamera.PiCamera() as camera:
         camera.resolution = (height, width)
@@ -32,7 +32,7 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
         if flip == 'True':
             camera.vflip = True
             camera.hflip = True
-        time.sleep(2)
+        #time.sleep(2)
         #output = np.empty((height, width, 3), dtype=np.uint8)
 
         camera.start_preview()
@@ -49,12 +49,10 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
                     break
             finish = time.time()
 
-            print('High resolution IR images : Captured %d frames at %.2ffps, duration %s, from %s to %s' % ( # 23.48fps offered. Up to 26fps.
+            print('High resolution IR images : Captured %d frames at %.2ffps, duration %.2fs' % ( # 23.48fps offered. Up to 26fps.
                 frame+1,
                 (frame+1) / (finish - start),
-                finish-start,
-                start,
-                finish))
+                finish-start))
 
             print('Written Ended.')
             camera.stop_preview()
