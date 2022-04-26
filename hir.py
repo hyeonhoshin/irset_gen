@@ -1,29 +1,13 @@
-import io
 
-class SplitFrames(object):
-    def __init__(self,path):
-        self.frame_num = 0
-        self.output = None
-        self.path = path
-
-    def write(self, buf):
-        if buf.startswith(b'\xff\xd8'):
-            # Start of new frame; close the old one (if any) and
-            # open a new output
-            if self.output:
-                self.output.close()
-            self.frame_num += 1
-            self.output = io.open(self.path + '%05d.jpg' % self.frame_num, 'wb')
-        self.output.write(buf)
 
 def hir_process(folder, frames, flip, mode, barrier, connection):
     # folder : The path of where hir folder will be generated
     # frames : count in main loop. In other words, how many frames are grabbed.
+
     import picamera
     import time
     import os
     from time import sleep
-    import io
 
     proc = os.getpid()
     #print(f"HIR process pid : {proc}")
@@ -59,16 +43,20 @@ def hir_process(folder, frames, flip, mode, barrier, connection):
         barrier.wait()
         if mode == 'save':
 
-            output = SplitFrames(path)
             start = time.time()
-            camera.start_recording(output, format='mjpeg')
-            camera.wait_recording(2)
-            camera.stop_recording()
+            for frame in range(frames):
+                camera.capture_sequence([path + '/%05d.png' % frame], use_video_port=True)
+                if(connection.poll()):
+                    break
             finish = time.time()
+
+            print('High resolution IR images : Captured %d frames at %.2ffps, duration %.2fs' % ( # 23.48fps offered. Up to 26fps.
+                frame+1,
+                (frame+1) / (finish - start),
+                finish-start))
+
+            print('Written Ended.')
             camera.stop_preview()
-            print('Captured %d frames at %.2ffps' % (
-                output.frame_num,
-                output.frame_num / (finish - start)))
         else:
             print("Now streaming?")
             sleep(100000000)
