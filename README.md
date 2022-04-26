@@ -20,3 +20,9 @@
 - main2,3.py : hir captureing이 꺼져 있고, 내용은 동일하지만 다른 FPS.py을 호출하게 되어있음. Multi-angle 촬영을 위한 파일인듯.
 - main_CG0.5_Iref1.py : Total Gain : 0.49,  GAIN factor : 0.49, Relative ADC Gain from I_ref = 1
 - main_CG2_Iref4.py : Total Gain : 0.51, GAIN factor : 2.04, Relative ADC Gain from l_ref = 1/4
+
+## Experiment results for HR IR optimization
+- 평소 : 약 35~39fps
+- LR drawer 제거 : 약 45fps.
+- LR drawer 제거 + Save 함수 제거 : 47fps.
+- HR drawer만 제거 : 약 40.1fps.
