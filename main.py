@@ -101,8 +101,8 @@ def s16(val):
 
 fps = FPS.FPS()
 
-cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
-cv2.waitKey(1)
+#cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
+#cv2.waitKey(1)
 sync_barrier.wait()
 start_time = time.time()
 
@@ -134,8 +134,8 @@ if args.mode == 'save':
         tmp_img = tmp_img / 1023.
         img = cv2.resize(tmp_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
 
-        cv2.imshow('stream', img)
-        cv2.waitKey(1)
+        #cv2.imshow('stream', img)
+        #cv2.waitKey(1)
 
     connection.send("End")
     end_time = time.time()
