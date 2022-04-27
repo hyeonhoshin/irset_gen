@@ -75,31 +75,31 @@ if(ser.is_open):
 def s16(val):
     return -(val & 0x8000)|(val&0x7fff)
 
-amp_steps = [b'0',b'1',b'2',b'3']
-gain_steps = [b'0',b'1',b'2',b'3',b'4',b'5',b'6',b'7',b'8',b'9',b'A',b'B',b'C',b'D',b'E',b'F']
+adc_steps = [b'0',b'1',b'2',b'3']
+amp_steps = [b'0',b'1',b'2',b'3',b'4',b'5',b'6',b'7',b'8',b'9',b'A',b'B',b'C',b'D',b'E',b'F']
 
 imgs = []
 
 best_sharpness = -100000
-loc_best_sharpness = {'amp':None,'gain':None}
+loc_best_sharpness = {'adc':None,'amp':None}
 
-for amp in amp_steps:
+for adc in adc_steps:
     imgs_same_amp = []
-    for gain in gain_steps:
+    for amp in amp_steps:
         # Change the gain and amp.
-        ser.write(b'reg write 0x05 0x4'+amp+b'\n') ## amp updated.
+        ser.write(b'reg write 0x05 0x4'+adc+b'\n') ## amp updated.
         sleep(0.01)
         
         ## Gain updated
-        ser.write(b'reg write 0xA5 0x'+gain+gain+b'\n')
+        ser.write(b'reg write 0xA5 0x'+amp+amp+b'\n')
         sleep(0.01)
-        ser.write(b'reg write 0xA6 0x'+gain+gain+b'\n')
+        ser.write(b'reg write 0xA6 0x'+amp+amp+b'\n')
         sleep(0.01)
-        ser.write(b'reg write 0xA7 0x'+gain+gain+b'\n')
+        ser.write(b'reg write 0xA7 0x'+amp+amp+b'\n')
         sleep(0.01)
-        ser.write(b'reg write 0xA8 0x'+gain+gain+b'\n')
+        ser.write(b'reg write 0xA8 0x'+amp+amp+b'\n')
         sleep(0.01)
-        ser.write(b'reg write 0xA9 0x'+gain+gain+b'\n')
+        ser.write(b'reg write 0xA9 0x'+amp+amp+b'\n')
 
         # Get value
         buffer = []
@@ -117,7 +117,7 @@ for amp in amp_steps:
 
         tmp = np.array(buffer)
 
-        f = open(b'test_samples/'+b'Amp_'+amp+b'_Gain_'+gain+b'.npy', 'wb')
+        f = open(b'test_samples/'+b'adc_'+adc+b'_amp_'+amp+b'.npy', 'wb')
         max = np.max(tmp)
         tmp_img = tmp.reshape(6,10)[::-1]
         np.save(f,tmp_img)
@@ -137,9 +137,9 @@ for amp in amp_steps:
         if max_val > best_sharpness:
             #print("yes!")
             best_sharpness = max_val
-            loc_best_sharpness = {'amp':amp,'gain':gain}
+            loc_best_sharpness = {'adc':adc,'amp':amp}
         img = cv2.resize(cv_img, dsize=(500,300), interpolation=cv2.INTER_NEAREST)
-        cv2.imwrite('test_samples_normalized_imgs/'+'Amp_'+str(amp,'utf-8')+'_Gain_'+str(gain,'utf-8')+'.png', img)
+        cv2.imwrite('test_samples_normalized_imgs/'+'adc_'+str(adc,'utf-8')+'_amp_'+str(amp,'utf-8')+'.png', img)
         
         imgs_same_amp.append(max_val)
     imgs.append(imgs_same_amp)
@@ -150,5 +150,5 @@ for amp in amp_steps:
 #print(imgs[3])
     
 print("The best sharpness:",best_sharpness)
-print("At the image, amp : %s, gain : %s"%(str(loc_best_sharpness['amp'],'utf-8'),str(loc_best_sharpness['gain'],'utf-8')))
+print("At the image, adc : %s, amp : %s"%(str(loc_best_sharpness['adc'],'utf-8'),str(loc_best_sharpness['amp'],'utf-8')))
 
