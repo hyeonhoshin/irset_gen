@@ -94,7 +94,7 @@ for bit in bit_steps:
     for adc in adc_steps:
         imgs_same_amp = []
         for amp in amp_steps:
-            out.write(b"\n===== bit"+bit+b",adc"+adc+b",amp"+amp+b" =====\n")
+            out.write("\n===== bit"+str(bit,'utf-8')+",adc"+str(adc,'utf-8')+",amp"+str(amp,'utf-8')+" =====\n")
             # Change the gain and amp.
             ser.write(b'reg write 0x05 0x4'+adc+b'\n') ## amp updated.
             sleep(0.01)
