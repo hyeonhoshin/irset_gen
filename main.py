@@ -7,7 +7,10 @@ import cv2
 import time
 import os
 
-from hir import hir_process
+from datetime import datetime
+
+#from hir import hir_process
+from sub import sub
 from multiprocessing import Process, current_process, Barrier, Pipe
 
 parser = argparse.ArgumentParser(description='Take IR photos')
@@ -34,11 +37,15 @@ print("count taking photo : {}\n".format(args.count))
 
 
 ### Start Hir grabbing by multi-processing.
+'''
 sync_barrier = Barrier(2)
-[hir_connection, connection] = Pipe(duplex=True)
-proc = Process(target=hir_process,args=(os.path.join(args.folder, f"s{args.subject:02d}-d{args.distance}-t{args.orientation:03d}"), args.count,args.flip,args.mode,sync_barrier, hir_connection))
+[sub_connection, connection] = Pipe(duplex=True)
+args2 = args
+args2.device = '/dev/ttyACM1'
+args2.folder = args.folder+'2'
+proc = Process(target=sub,args=(args2,sync_barrier, sub_connection))
 proc.start()
-
+'''
 ### input : name of usb. baud rate. folder name.
 # lr_path = args.folder + '/ir_lr'
 lr_path = os.path.join(args.folder, f"s{args.subject:02d}-d{args.distance}-t{args.orientation:03d}", "ir_lr")
@@ -72,7 +79,7 @@ ser.write(b'reg write 0x03 0x0F\n') # End of converstion delay = 0, Integration 
 sleep(0.01)
 ser.write(b'reg write 0x04 0x02\n') # Number of repeats = 4, Number of coherent double samples = 1, Turn off fine-grained compensation; 0100001X = 0x43
 sleep(0.01)
-ser.write(b'reg write 0x05 0x43\n') # Full PGA amplifying.
+ser.write(b'reg write 0x05 0x40\n') # Full PGA amplifying.
 sleep(0.01)
 ser.write(b'reg write 0x06 0x0A\n') # LED PWM Setting. No need to cocern.
 sleep(0.01)
@@ -80,15 +87,15 @@ ser.write(b'reg write 0xC1 0x00\n') # Turn off LED
 sleep(0.01)
 
 # Make the amplifier sensitive
-ser.write(b'reg write 0xA5 0x00\n')
+ser.write(b'reg write 0xA5 0xFF\n')
 sleep(0.01)
-ser.write(b'reg write 0xA6 0x00\n')
+ser.write(b'reg write 0xA6 0xFF\n')
 sleep(0.01)
-ser.write(b'reg write 0xA7 0x00\n')
+ser.write(b'reg write 0xA7 0xFF\n')
 sleep(0.01)
-ser.write(b'reg write 0xA8 0x00\n')
+ser.write(b'reg write 0xA8 0xFF\n')
 sleep(0.01)
-ser.write(b'reg write 0xA9 0x00\n')
+ser.write(b'reg write 0xA9 0xFF\n')
 
 # Get ir data
 if(ser.is_open):
@@ -101,9 +108,13 @@ def s16(val):
 
 fps = FPS.FPS(args.count)
 
-cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
-cv2.waitKey(1)
-sync_barrier.wait()
+#cv2.imshow('stream', cv2.resize(np.zeros([6, 10], dtype=float), dsize=(500, 300), interpolation=cv2.INTER_NEAREST))
+#cv2.waitKey(1)
+#sync_barrier.wait()
+
+print("Record start!")
+print(time.gmtime(time.time()))
+print(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'))
 
 fps.start()
 if args.mode == 'save':
@@ -136,11 +147,12 @@ if args.mode == 'save':
         cv2.imshow('stream', img)
         cv2.waitKey(1)
 
-    connection.send("End")
+    #connection.send("End")
 
 elif args.mode == 'conti':
     while(True):
         buffer = []
+        time.time()
         ser.write(b'reg read 0x10 0x78\n')
         frame = ser.read_until()
 
@@ -150,6 +162,7 @@ elif args.mode == 'conti':
             try:
                 buffer.append(s16(int(prior+post, base = 16)))
             except:
+                print("Error in main!")
                 print(prior+post)
                 # print(frame)
 
@@ -184,7 +197,7 @@ fps.stop()
 print(f"Total fps : {fps.fps2():.4f}")
 print(f"Total time : {fps.elapsed2():.4f}")
 
-proc.join()
+#proc.join()
 
 cv2.waitKey(10)
 cv2.destroyAllWindows()
